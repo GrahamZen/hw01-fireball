@@ -14,6 +14,9 @@ import {vec4, mat4} from 'gl-matrix';
 // This will be referred to by dat.GUI's functions that add GUI elements.
 const controls = {
   tesselations: 5,
+  amplitude: 1,
+  frequency: 20,
+  parabola: 40,
   'Load Scene': loadScene, // A function pointer, essentially
 };
 
@@ -44,6 +47,9 @@ function main() {
   gui.add(controls, 'tesselations', 0, 8).step(1);
   gui.add(controls, 'Load Scene');
   gui.addColor(palette, 'color');
+  gui.add(controls, 'amplitude', 0, 10).step(0.1);
+  gui.add(controls, 'frequency', 1, 50).step(0.1);
+  gui.add(controls, 'parabola', 1, 200).step(0.5);
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
@@ -75,6 +81,9 @@ function main() {
     stats.begin();
     curr_prog.setGeometryColor(vec4.fromValues(palette.color[0]/255, palette.color[1]/255, palette.color[2]/255, 1));
     curr_prog.setTime(0.001 * timeStamp);
+    curr_prog.setAmp(controls.amplitude);
+    curr_prog.setFreq(controls.frequency);
+    curr_prog.setImpulse(controls.parabola);
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.clear();
     if(controls.tesselations != prevTesselations)

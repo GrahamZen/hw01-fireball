@@ -20,6 +20,11 @@ uniform mat4 u_ViewProj;    // The matrix that defines the camera's transformati
                             // but in HW3 you'll have to generate one yourself
 uniform float u_Time; // The time values for the shader
 
+uniform float u_Amp;
+uniform float u_Freq;
+uniform float u_Impulse;
+
+
 in vec4 vs_Pos;             // The array of vertex positions passed to the shader
 
 in vec4 vs_Nor;             // The array of vertex normals passed to the shader
@@ -95,9 +100,11 @@ vec3 impulse(vec3 k, vec3 x) {
 }
 
 float triangle_wave(float x, float freq, float amp) {
-    return amp *  (abs(mod(x*freq,amp))- 0.5);
+    return abs(mod(x*freq,amp)- 0.5*amp);
 }
-
+float parabola(float x, float k) {
+    return pow(4.0 * x * (1.0 - x), k);
+}
 void main()
 {
     fs_Col = vs_Col;                         // Pass the vertex colors to the fragment shader for interpolation
@@ -109,11 +116,11 @@ void main()
                                                             // perpendicular to the surface after the surface is transformed by
                                                             // the model matrix.
     float freq1 = 0.05;
-    float freq2 = 5.0;
+    float freq2 = u_Freq;
     float amp1 = 4.0*transform(vs_Pos.xyz);
-    float amp2 = 0.5;
-    vec3 disp = amp1* (sin(abs(freq1*vs_Pos.xyz)))* fs_Nor.xyz + amp2* impulse(fbm(freq2*(vs_Pos.xyz+u_Time)),0.9) * fs_Nor.xyz;
-    vec3 pos = vs_Pos.xyz + disp;
+    float amp2 = parabola((sin(u_Time)+1.0)*0.5, u_Impulse)+0.5;
+    vec3 disp = amp1* (sin(abs(freq1*vs_Pos.xyz)))* fs_Nor.xyz;
+    vec3 pos = vs_Pos.xyz + disp + amp2* impulse(fbm(freq2*(vs_Pos.xyz+u_Time)),0.9) * fs_Nor.xyz;
     vec4 modelposition = u_Model * vec4(pos.xyz, 1.0);   // Temporarily store the transformed vertex positions for use below
 
     fs_LightVec = lightPos - modelposition;  // Compute the direction in which the light source lies
@@ -121,5 +128,5 @@ void main()
     gl_Position = u_ViewProj * modelposition;// gl_Position is a built-in variable of OpenGL which is
                                              // used to render the final positions of the geometry's vertices
     fs_Pos = vs_Pos;
-    fs_Disp = disp;
+    fs_Disp = disp+impulse(fbm(freq2*(vs_Pos.xyz+u_Time)),0.9) * fs_Nor.xyz;
 }

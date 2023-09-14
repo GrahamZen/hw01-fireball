@@ -94,10 +94,19 @@ float fbm(vec3 x) {
 	return res;
 }
 
+float parabola(float x, float k) {
+    return pow(4.0 * x * (1.0 - x), k);
+}
+
+vec3 parabola(vec3 x, float k) {
+    return pow(4.0 * x * (1.0 - x), vec3(k,k,k));
+}
+
 void main()
 {
     // Material base color (before shading)
-        vec4 diffuseColor = vec4(clamp(u_Color.xyz+fs_Disp,0.0,255.0),1.0);
+        vec4 diffuseColor = vec4(clamp((u_Color.xyz*abs(fs_Disp)),0.0,1.0),1.0);
+        diffuseColor.r=length(fs_Disp);
 
         // Calculate the diffuse term for Lambert shading
         float diffuseTerm = dot(normalize(fs_Nor), normalize(fs_LightVec));

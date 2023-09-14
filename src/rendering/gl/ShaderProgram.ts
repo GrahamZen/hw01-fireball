@@ -30,6 +30,9 @@ class ShaderProgram {
   unifViewProj: WebGLUniformLocation;
   unifColor: WebGLUniformLocation;
   unifTime: WebGLUniformLocation;
+  unifAmp: WebGLUniformLocation;
+  unifFreq: WebGLUniformLocation;
+  unifImpulse: WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -50,6 +53,9 @@ class ShaderProgram {
     this.unifViewProj   = gl.getUniformLocation(this.prog, "u_ViewProj");
     this.unifColor      = gl.getUniformLocation(this.prog, "u_Color");
     this.unifTime      = gl.getUniformLocation(this.prog, "u_Time");
+    this.unifAmp      = gl.getUniformLocation(this.prog, "u_Amp");
+    this.unifFreq      = gl.getUniformLocation(this.prog, "u_Freq");
+    this.unifImpulse      = gl.getUniformLocation(this.prog, "u_Impulse");
   }
 
   use() {
@@ -94,6 +100,26 @@ class ShaderProgram {
     }
   }
 
+  setAmp(amp: number) {
+    this.use();
+    if (this.unifAmp !== -1) {
+        gl.uniform1f(this.unifAmp, amp);
+    }
+  }
+
+  setFreq(freq: number) {
+    this.use();
+    if (this.unifFreq !== -1) {
+        gl.uniform1f(this.unifFreq, freq);
+    }
+  }
+
+  setImpulse(impulse: number) {
+    this.use();
+    if (this.unifImpulse !== -1) {
+        gl.uniform1f(this.unifImpulse, impulse);
+    }
+ }
 
   draw(d: Drawable) {
     this.use();
