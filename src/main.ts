@@ -68,7 +68,6 @@ function main() {
     new Shader(gl.VERTEX_SHADER, require('./shaders/lambert-vert.glsl')),
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/lambert-frag.glsl')),
   ]);
-
   var curr_prog = lambert;
   // This function will be called every frame
   function tick(timeStamp: number) {

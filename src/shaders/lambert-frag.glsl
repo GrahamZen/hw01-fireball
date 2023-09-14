@@ -20,7 +20,7 @@ in vec4 fs_Nor;
 in vec4 fs_LightVec;
 in vec4 fs_Col;
 in vec4 fs_Pos;
-
+in vec3 fs_Disp;
 out vec4 out_Col; // This is the final output color that you will see on your
                   // screen for the pixel that is currently being processed.
 #define NUM_OCTAVES 6
@@ -97,8 +97,7 @@ float fbm(vec3 x) {
 void main()
 {
     // Material base color (before shading)
-        vec3 noise = vec3(fbm(fs_Pos.xyz),fbm(fs_Pos.yzx),fbm(fs_Pos.zxy));
-        vec4 diffuseColor = vec4(noise*u_Color.xyz,1.0);
+        vec4 diffuseColor = vec4(clamp(u_Color.xyz+fs_Disp,0.0,255.0),1.0);
 
         // Calculate the diffuse term for Lambert shading
         float diffuseTerm = dot(normalize(fs_Nor), normalize(fs_LightVec));

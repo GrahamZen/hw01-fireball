@@ -30,6 +30,7 @@ out vec4 fs_Nor;            // The array of normals that has been transformed by
 out vec4 fs_LightVec;       // The direction in which our virtual light lies, relative to each vertex. This is implicitly passed to the fragment shader.
 out vec4 fs_Col;            // The color of each vertex. This is implicitly passed to the fragment shader.
 out vec4 fs_Pos;            // The color of each vertex. This is implicitly passed to the fragment shader.
+out vec3 fs_Disp;           // The displacement of each vertex. This is implicitly passed to the fragment shader.
 
 const vec4 lightPos = vec4(5, 5, 3, 1); //The position of our virtual light, which is used to compute the shading of
                                         //the geometry in the fragment shader.
@@ -74,6 +75,29 @@ float fbm(vec3 x) {
 	return v;
 }
 
+float bias(float b, float t) {
+    return pow(t, log(b) / log(0.9));
+}
+
+float transform(vec3 p) {
+    return bias(0.75, length(p));
+}
+
+
+float impulse(float k, float x) {
+    float h = k * x;
+    return h * exp(1.0 - h);
+}
+
+vec3 impulse(vec3 k, vec3 x) {
+    vec3 h = k * x;
+    return h * exp(1.0 - h);
+}
+
+float triangle_wave(float x, float freq, float amp) {
+    return amp *  (abs(mod(x*freq,amp))- 0.5);
+}
+
 void main()
 {
     fs_Col = vs_Col;                         // Pass the vertex colors to the fragment shader for interpolation
@@ -84,12 +108,12 @@ void main()
                                                             // model matrix. This is necessary to ensure the normals remain
                                                             // perpendicular to the surface after the surface is transformed by
                                                             // the model matrix.
-    float freq = 0.2;
-    float amp = 4.0;
-    float time = u_Time * freq;
-    vec3 pos = vs_Pos.xyz + amp* vec3(sin(time), sin(time), sin(time));
-    vec3 noise = vec3(fbm(pos.xyz), fbm(pos.yzx), fbm(pos.zxy));
-    pos = vs_Pos.xyz + noise- vec3(0.5);
+    float freq1 = 0.05;
+    float freq2 = 5.0;
+    float amp1 = 4.0*transform(vs_Pos.xyz);
+    float amp2 = 0.5;
+    vec3 disp = amp1* (sin(abs(freq1*vs_Pos.xyz)))* fs_Nor.xyz + amp2* impulse(fbm(freq2*(vs_Pos.xyz+u_Time)),0.9) * fs_Nor.xyz;
+    vec3 pos = vs_Pos.xyz + disp;
     vec4 modelposition = u_Model * vec4(pos.xyz, 1.0);   // Temporarily store the transformed vertex positions for use below
 
     fs_LightVec = lightPos - modelposition;  // Compute the direction in which the light source lies
@@ -97,4 +121,5 @@ void main()
     gl_Position = u_ViewProj * modelposition;// gl_Position is a built-in variable of OpenGL which is
                                              // used to render the final positions of the geometry's vertices
     fs_Pos = vs_Pos;
+    fs_Disp = disp;
 }
