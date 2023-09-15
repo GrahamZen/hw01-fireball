@@ -79,7 +79,10 @@ class Cube extends Drawable {
         0, 1, 0, 0,
         -1, 0, 0, 0,]);
     
-    
+    // flip normals
+    for (let i = 0; i < this.normals.length; i++) {
+        this.normals[i] *= -1;
+    }
     this.indices = new Uint32Array([0, 3, 6,
                                 0, 6, 9,
                                 5, 17, 8,

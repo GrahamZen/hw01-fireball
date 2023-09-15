@@ -32,6 +32,8 @@ let prevTesselations: number = 5;
 function loadScene() {
     icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, controls.tesselations);
     icosphere.create();
+    cube = new Cube(vec3.fromValues(0, 0, 0));
+    cube.create();
 }
 
 function main() {
@@ -106,11 +108,16 @@ function main() {
     renderer.setClearColor(0.2, 0.2, 0.2, 1);
     gl.enable(gl.DEPTH_TEST);
 
+    const noise = new ShaderProgram([
+        new Shader(gl.VERTEX_SHADER, require('./shaders/noise-vert.glsl')),
+        new Shader(gl.FRAGMENT_SHADER, require('./shaders/noise-frag.glsl')),
+    ]);
     const lambert = new ShaderProgram([
         new Shader(gl.VERTEX_SHADER, require('./shaders/lambert-vert.glsl')),
         new Shader(gl.FRAGMENT_SHADER, require('./shaders/lambert-frag.glsl')),
     ]);
-    var curr_prog = lambert;
+
+    var curr_prog = noise;
 
     // This function will be called every frame
     let old_time = 0;
@@ -134,6 +141,7 @@ function main() {
             else
                 curr_prog.setAmp(controls.amplitude);
         }
+        curr_prog.setModelMatrix(mat4.create());
         curr_prog.setFreq(controls.frequency);
         curr_prog.setImpulse(controls.parabola);
         curr_prog.setFreqFbm(controls.frequency_fbm);
@@ -145,9 +153,17 @@ function main() {
             prevTesselations = controls.tesselations;
             icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, controls.tesselations);
             icosphere.create();
+            cube = new Cube(vec3.fromValues(0, 0, 0));
+            cube.create();
         }
         renderer.render(camera, curr_prog, [
-            icosphere
+            icosphere,
+        ]);
+        // set the model matrix to an scaled matrix with scale factor 4
+        lambert.setModelMatrix(mat4.fromScaling(mat4.create(), vec3.fromValues(500, 500, 500)));
+        lambert.setGeometryColor(vec4.fromValues(palette.color[0] / 255, palette.color[1] / 255, palette.color[2] / 255, 1));
+        renderer.render(camera, lambert, [
+            cube
         ]);
         stats.end();
 
