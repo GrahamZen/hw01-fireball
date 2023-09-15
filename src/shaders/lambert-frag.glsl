@@ -13,6 +13,7 @@ precision highp float;
 
 uniform vec4 u_Color; // The color with which to render this instance of geometry.
 uniform float u_Time; // The time values for the shader
+uniform float u_Impulse;
 
 // These are the interpolated values out of the rasterizer, so you can't know
 // their specific values without knowing the vertices that contributed to them
@@ -93,25 +94,22 @@ float fbm(vec3 x) {
 	}
 	return res;
 }
-
-float parabola(float x, float k) {
-    return pow(4.0 * x * (1.0 - x), k);
+float triangle_wave(float x, float freq, float amp) {
+    return abs(mod(x*freq,amp)- 0.5*amp);
 }
 
-vec3 parabola(vec3 x, float k) {
-    return pow(4.0 * x * (1.0 - x), vec3(k,k,k));
-}
 
 void main()
 {
     // Material base color (before shading)
-        vec4 diffuseColor = vec4(clamp((u_Color.xyz*abs(fs_Disp)),0.0,1.0),1.0);
+        float amp = triangle_wave((sin(u_Time/4.0)+1.0)*0.5, u_Impulse, 2.0)*0.5+0.5;
+        vec4 diffuseColor = vec4(clamp((u_Color.xyz*abs(fs_Disp)),0.0,1.0)*amp,1.0);
         diffuseColor.r=length(fs_Disp);
 
         // Calculate the diffuse term for Lambert shading
         float diffuseTerm = dot(normalize(fs_Nor), normalize(fs_LightVec));
         // Avoid negative lighting values
-        // diffuseTerm = clamp(diffuseTerm, 0.0, 1.0);
+        diffuseTerm = clamp(diffuseTerm, 0.0, 1.0);
 
         float ambientTerm = 1.0;
 
