@@ -1,4 +1,4 @@
-import { vec4, mat4 } from 'gl-matrix';
+import { vec2, vec3, vec4, mat4 } from 'gl-matrix';
 import Drawable from './Drawable';
 import { gl } from '../../globals';
 
@@ -36,6 +36,8 @@ class ShaderProgram {
     unifFreqFbm: WebGLUniformLocation;
     unifPause: WebGLUniformLocation;
     unifVis: WebGLUniformLocation;
+    unifCamPos: WebGLUniformLocation;
+    unifDimensions: WebGLUniformLocation;
 
     constructor(shaders: Array<Shader>) {
         this.prog = gl.createProgram();
@@ -62,6 +64,8 @@ class ShaderProgram {
         this.unifFreqFbm = gl.getUniformLocation(this.prog, "u_FreqFbm");
         this.unifPause = gl.getUniformLocation(this.prog, "u_Pause");
         this.unifVis = gl.getUniformLocation(this.prog, "u_Vis");
+        this.unifCamPos = gl.getUniformLocation(this.prog, "u_CamPos");
+        this.unifDimensions = gl.getUniformLocation(this.prog, "u_Dimensions");
     }
 
     use() {
@@ -85,6 +89,13 @@ class ShaderProgram {
         }
     }
 
+    setCamPos(pos: vec4) {
+        this.use();
+        if (this.unifCamPos !== -1) {
+            gl.uniform4fv(this.unifCamPos, pos);
+        }
+    }
+
     setViewProjMatrix(vp: mat4) {
         this.use();
         if (this.unifViewProj !== -1) {
@@ -103,6 +114,13 @@ class ShaderProgram {
         this.use();
         if (this.unifTime !== -1) {
             gl.uniform1f(this.unifTime, time);
+        }
+    }
+
+    setDimensions(dimensions: vec2) {
+        this.use();
+        if (this.unifDimensions !== -1) {
+            gl.uniform2fv(this.unifDimensions, dimensions);
         }
     }
 
