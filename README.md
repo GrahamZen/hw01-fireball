@@ -1,5 +1,21 @@
 # [Project 1: Noise](https://github.com/CIS-566-Fall-2022/hw01-fireball-base)
 
+## Overview
+
+1. The scene is rendered with three shaders: flat shader(halo), lambert shader(skybox), and noise shader(fireball).
+2. Apply FBM noise to both the vertex and fragment shaders to create a fireball-like effect and ambience.
+3. Use four toolbox functions: bias, impulse, parabola, triangle_wave.
+4. Add a halo to the fireball.
+5. Use the sum of the frequency data of the music as amplitude.
+6. Allow users to set amplitude, frequency of the fbm, and length of parabola's peak.
+
+## Demo
+
+Since chrome does not allow autoplay, please click the `Reset` button to start the music. You can turn off `visualize` to see the fireball driven by parabola. I picked Emiya for this demo because it has a strong sense of rhythm, and it's also one of my favorite tracks.
+
+[hw01-fireball](https://grahamzen.github.io/hw01-fireball/)
+
+![1695413310985](image/README/1695413310985.gif)
 ## Objective
 
 Get comfortable with using WebGL and its shaders to generate an interesting 3D, continuous surface using a multi-octave noise algorithm.
