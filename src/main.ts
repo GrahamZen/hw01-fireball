@@ -84,7 +84,10 @@ function main() {
     const gui = new DAT.GUI();
     gui.add(controls, 'tesselations', 0, 8).step(1);
     gui.add(controls, 'Load Scene');
-    gui.add(controls, 'Reset');
+    gui.add(controls, 'Reset').onChange(function () {
+        audio.play();
+        audioContext.resume();
+    });
     gui.add(controls, 'volume', 0, 1).step(0.01).onChange(function (value) {
         audio.volume = value;
     });
