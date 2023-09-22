@@ -147,6 +147,6 @@ void main() {
       u_ViewProj * modelposition; // gl_Position is a built-in variable of
                                   // OpenGL which is used to render the final
                                   // positions of the geometry's vertices
-  fs_Pos = vs_Pos;
+    fs_Pos = vec4(pos, 1.0);
   fs_Disp = disp + impulse(fbm(freq2 * (vs_Pos.xyz + time)), 0.9) * fs_Nor.xyz;
 }

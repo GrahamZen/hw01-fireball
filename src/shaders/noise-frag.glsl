@@ -103,10 +103,9 @@ void main() {
 
   vec3 noiseSrc = fs_Pos.xyz + u_Time;
 
-  vec3 color = mix(
-      u_Color.rgb,
-      vec3(0.349 + u_Amp / 15.0, 0.4039 - u_Amp / 50.0, 0.102 - u_Amp / 50.0),
-      (1.0 - fbm(noiseSrc)));
+  vec3 color = mix(u_Color.rgb,
+                   vec3(0.349 + u_Amp / 15.0, u_Amp / 50.0, 0.1 - u_Amp / 50.0),
+                   (1.0 - fbm(noiseSrc)));
 
   // Calculate the diffuse term for Lambert shading
   float diffuseTerm = dot(normalize(fs_Nor), normalize(fs_LightVec));
