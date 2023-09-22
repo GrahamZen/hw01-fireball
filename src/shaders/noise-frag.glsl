@@ -106,7 +106,7 @@ void main() {
 
   vec3 color = mix(
       u_Color.rgb,
-      vec3(0.549 + u_Amp / 20.0, 0.4039 - u_Amp / 50.0, 0.102 - u_Amp / 50.0),
+      vec3(0.349 + u_Amp / 15.0, 0.4039 - u_Amp / 50.0, 0.102 - u_Amp / 50.0),
       (1.0 - fbm(noiseSrc)));
 
   // Calculate the diffuse term for Lambert shading

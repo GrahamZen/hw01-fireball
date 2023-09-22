@@ -22,12 +22,24 @@ const controls = {
     volume: 0.5,
     visualize: true,
     'Load Scene': loadScene, // A function pointer, essentially
+    'Reset': reset,
 };
 
 let icosphere: Icosphere;
 let square: Square;
 let cube: Cube;
 let prevTesselations: number = 5;
+
+function reset() {
+    controls.tesselations = 5;
+    controls.amplitude = 1;
+    controls.frequency = 1;
+    controls.parabola = 40;
+    controls.frequency_fbm = 5;
+    controls.pause = false;
+    controls.volume = 0.5;
+    controls.visualize = true;
+}
 
 function loadScene() {
     icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, controls.tesselations);
@@ -74,6 +86,7 @@ function main() {
     const gui = new DAT.GUI();
     gui.add(controls, 'tesselations', 0, 8).step(1);
     gui.add(controls, 'Load Scene');
+    gui.add(controls, 'Reset');
     gui.add(controls, 'volume', 0, 1).step(0.01).onChange(function (value) {
         audio.volume = value;
     });
@@ -134,7 +147,7 @@ function main() {
     function tick(timestamp: number) {
         camera.update();
         stats.begin();
-        let averageAmplitude = 7.5 * getAmp();
+        let averageAmplitude = 12 * getAmp();
         curr_prog.setGeometryColor(vec4.fromValues(palette.color[0] / 255, palette.color[1] / 255, palette.color[2] / 255, 1));
         if (controls.pause) {
             if (!isRecorded) {
