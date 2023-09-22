@@ -34,7 +34,6 @@ class ShaderProgram {
     unifFreq: WebGLUniformLocation;
     unifImpulse: WebGLUniformLocation;
     unifFreqFbm: WebGLUniformLocation;
-    unifPause: WebGLUniformLocation;
     unifVis: WebGLUniformLocation;
     unifCamPos: WebGLUniformLocation;
     unifDimensions: WebGLUniformLocation;
@@ -62,7 +61,6 @@ class ShaderProgram {
         this.unifFreq = gl.getUniformLocation(this.prog, "u_Freq");
         this.unifImpulse = gl.getUniformLocation(this.prog, "u_Impulse");
         this.unifFreqFbm = gl.getUniformLocation(this.prog, "u_FreqFbm");
-        this.unifPause = gl.getUniformLocation(this.prog, "u_Pause");
         this.unifVis = gl.getUniformLocation(this.prog, "u_Vis");
         this.unifCamPos = gl.getUniformLocation(this.prog, "u_CamPos");
         this.unifDimensions = gl.getUniformLocation(this.prog, "u_Dimensions");
@@ -149,13 +147,6 @@ class ShaderProgram {
         this.use();
         if (this.unifFreqFbm !== -1) {
             gl.uniform1f(this.unifFreqFbm, freqFbm);
-        }
-    }
-
-    setPause(pause: number) {
-        this.use();
-        if (this.unifPause !== -1) {
-            gl.uniform1i(this.unifPause, pause);
         }
     }
 

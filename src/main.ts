@@ -15,7 +15,6 @@ import { vec4, mat4 } from 'gl-matrix';
 const controls = {
     tesselations: 5,
     amplitude: 1,
-    frequency: 1,
     parabola: 40,
     frequency_fbm: 5,
     pause: false,
@@ -33,7 +32,6 @@ let prevTesselations: number = 5;
 function reset() {
     controls.tesselations = 5;
     controls.amplitude = 1;
-    controls.frequency = 1;
     controls.parabola = 40;
     controls.frequency_fbm = 5;
     controls.pause = false;
@@ -101,7 +99,6 @@ function main() {
     });
     gui.addColor(palette, 'color');
     gui.add(controls, 'amplitude', 0.1, 10).step(0.1);
-    gui.add(controls, 'frequency', 1, 10).step(0.1);
     gui.add(controls, 'parabola', 1, 200).step(0.5);
     gui.add(controls, 'frequency_fbm', 1, 15).step(0.1);
     // get canvas and webgl context
@@ -151,12 +148,16 @@ function main() {
         curr_prog.setGeometryColor(vec4.fromValues(palette.color[0] / 255, palette.color[1] / 255, palette.color[2] / 255, 1));
         if (controls.pause) {
             if (!isRecorded) {
-                old_time = timestamp;
+                old_time = timestamp * 0.001;
                 isRecorded = true;
+                curr_prog.setTime(old_time);
+                lambert.setTime(old_time);
+                flat.setTime(old_time);
             }
-            curr_prog.setTime(old_time);
         } else {
             curr_prog.setTime(timestamp * 0.001);
+            flat.setTime(timestamp * 0.001);
+            lambert.setTime(timestamp * 0.001);
             isRecorded = false;
             if (controls.visualize) {
                 curr_prog.setAmp(controls.amplitude * averageAmplitude / 100.0);
@@ -168,13 +169,13 @@ function main() {
             }
         }
         curr_prog.setModelMatrix(mat4.fromScaling(mat4.create(), vec3.fromValues(1, 1, 1)));
-        curr_prog.setFreq(controls.frequency);
+        curr_prog.setFreq(1);
         curr_prog.setImpulse(controls.parabola);
         curr_prog.setFreqFbm(controls.frequency_fbm);
-        curr_prog.setPause(controls.pause ? 1 : 0);
         curr_prog.setVis(controls.visualize ? 1 : 0);
+        flat.setVis(controls.visualize ? 1 : 0);
+        flat.setImpulse(controls.parabola);
         flat.setCamPos(camera.controls.eye);
-        flat.setTime(timestamp * 0.001);
         flat.setDimensions(vec2.fromValues(window.innerWidth, window.innerHeight));
         flat.setGeometryColor(vec4.fromValues(palette.color[0] / 255, palette.color[1] / 255, palette.color[2] / 255, 1));
         gl.viewport(0, 0, window.innerWidth, window.innerHeight);
@@ -189,7 +190,6 @@ function main() {
         // set the model matrix to an scaled matrix with scale factor 4
         lambert.setModelMatrix(mat4.fromScaling(mat4.create(), vec3.fromValues(500, 500, 500)));
         lambert.setGeometryColor(vec4.fromValues(palette.color[0] / 255, palette.color[1] / 255, palette.color[2] / 255, 1));
-        lambert.setTime(timestamp * 0.001);
         renderer.render(camera, lambert, [
             cube
         ]);

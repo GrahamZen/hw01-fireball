@@ -20,13 +20,12 @@ uniform mat4
 uniform mat4 u_ViewProj; // The matrix that defines the camera's transformation.
                          // We've written a static matrix for you to use for
                          // HW2, but in HW3 you'll have to generate one yourself
-uniform float u_Time; // The time values for the shader
+uniform float u_Time;    // The time values for the shader
 
 uniform float u_Amp;
 uniform float u_Freq;
 uniform float u_Impulse;
 uniform float u_FreqFbm;
-uniform int u_Pause;
 uniform int u_Vis;
 
 in vec4 vs_Pos; // The array of vertex positions passed to the shader

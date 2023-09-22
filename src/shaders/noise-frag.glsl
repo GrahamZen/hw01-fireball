@@ -14,7 +14,6 @@ precision highp float;
 uniform vec4
     u_Color; // The color with which to render this instance of geometry.
 uniform float u_Time; // The time values for the shader
-uniform float u_Impulse;
 uniform float u_Amp;
 uniform int u_Vis;
 

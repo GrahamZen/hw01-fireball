@@ -6,9 +6,14 @@ uniform vec2 u_Dimensions;
 uniform float u_Time;
 uniform vec4 u_Color;
 uniform float u_Amp;
+uniform int u_Vis;
+uniform float u_Impulse;
 
 in vec2 fs_Pos;
 out vec4 out_Col;
+
+float parabola(float x, float k) { return pow(4.0 * x * (1.0 - x), k); }
+
 // https://www.shadertoy.com/view/4dXGR4
 float snoise(vec3 uv, float res) // by trisomie21
 {
@@ -35,19 +40,26 @@ float snoise(vec3 uv, float res) // by trisomie21
 }
 
 void main() {
+  float time = u_Time * 0.1;
+  float amp;
+  if (u_Vis == 1) {
+    amp = u_Amp;
+  } else {
+    amp = 4.0 * sqrt(u_Amp) *
+          (0.5 + parabola((sin(u_Time) + 1.0) * 0.5, u_Impulse));
+  }
 
   float brightness = 0.8;
-  float radius = 0.25 * (u_Amp + 1.0) / 100.0;
+  float radius = 0.25 * (amp + 1.0) / 100.0;
   float invRadius = 1.0 / radius;
 
   vec3 orangeRed = vec3(0.8, 0.35, 0.1);
-  float time = u_Time * 0.1;
   float aspect = u_Dimensions.x / u_Dimensions.y;
   vec2 uv = fs_Pos.xy + vec2(0.5, 0.5);
   vec2 p = fs_Pos;
 
   p.x *= aspect;
-  p /= ((u_Amp + 1.0) / 5.0);
+  p /= ((amp + 1.0) / 5.0);
 
   float fade = pow(length(2.0 * p), 0.5);
   float fVal1 = 1.0 - fade;
@@ -55,7 +67,7 @@ void main() {
 
   float angle = atan(p.x, p.y) / 6.2832;
   float dist = length(p);
-  vec3 coord = vec3(angle, dist + u_Amp / 25.0, time * 0.1);
+  vec3 coord = vec3(angle, dist + amp / 25.0, time * 0.1);
 
   float newTime1 = abs(snoise(
       coord + vec3(0.0, -time * (0.35 + brightness * 0.001), time * 0.015),
