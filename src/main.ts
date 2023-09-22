@@ -17,7 +17,7 @@ const controls = {
     amplitude: 1,
     frequency: 1,
     parabola: 40,
-    frequency_fbm: 20,
+    frequency_fbm: 5,
     pause: false,
     volume: 0.5,
     visualize: true,
@@ -34,6 +34,8 @@ function loadScene() {
     icosphere.create();
     cube = new Cube(vec3.fromValues(0, 0, 0));
     cube.create();
+    square = new Square(vec3.fromValues(0, 0, 0));
+    square.create();
 }
 
 function main() {
@@ -46,7 +48,7 @@ function main() {
     document.body.appendChild(stats.domElement);
 
     var palette = {
-        color: [255, 0, 0] // RGB array
+        color: [0, 0, 0] // RGB array
     };
 
     const audioContext = new AudioContext();
@@ -85,10 +87,10 @@ function main() {
         }
     });
     gui.addColor(palette, 'color');
-    gui.add(controls, 'amplitude', 0, 10).step(0.1);
+    gui.add(controls, 'amplitude', 0.1, 10).step(0.1);
     gui.add(controls, 'frequency', 1, 10).step(0.1);
     gui.add(controls, 'parabola', 1, 200).step(0.5);
-    gui.add(controls, 'frequency_fbm', 1, 50).step(0.1);
+    gui.add(controls, 'frequency_fbm', 1, 15).step(0.1);
     // get canvas and webgl context
     const canvas = <HTMLCanvasElement>document.getElementById('canvas');
     const gl = <WebGL2RenderingContext>canvas.getContext('webgl2');
@@ -102,11 +104,12 @@ function main() {
     // Initial call to load scene
     loadScene();
 
-    const camera = new Camera(vec3.fromValues(0, 0, 5), vec3.fromValues(0, 0, 0));
+    const camera = new Camera(vec3.fromValues(0, 0, 40), vec3.fromValues(0, 0, 0));
 
     const renderer = new OpenGLRenderer(canvas);
     renderer.setClearColor(0.2, 0.2, 0.2, 1);
     gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.BLEND);
 
     const noise = new ShaderProgram([
         new Shader(gl.VERTEX_SHADER, require('./shaders/noise-vert.glsl')),
@@ -117,6 +120,12 @@ function main() {
         new Shader(gl.FRAGMENT_SHADER, require('./shaders/lambert-frag.glsl')),
     ]);
 
+    const flat = new ShaderProgram([
+        new Shader(gl.VERTEX_SHADER, require('./shaders/flat-vert.glsl')),
+        new Shader(gl.FRAGMENT_SHADER, require('./shaders/flat-frag.glsl')),
+    ]);
+
+
     var curr_prog = noise;
 
     // This function will be called every frame
@@ -125,7 +134,7 @@ function main() {
     function tick(timestamp: number) {
         camera.update();
         stats.begin();
-        let averageAmplitude = getAmp();
+        let averageAmplitude = 7.5 * getAmp();
         curr_prog.setGeometryColor(vec4.fromValues(palette.color[0] / 255, palette.color[1] / 255, palette.color[2] / 255, 1));
         if (controls.pause) {
             if (!isRecorded) {
@@ -136,17 +145,25 @@ function main() {
         } else {
             curr_prog.setTime(timestamp * 0.001);
             isRecorded = false;
-            if (controls.visualize)
+            if (controls.visualize) {
                 curr_prog.setAmp(controls.amplitude * averageAmplitude / 100.0);
-            else
+                flat.setAmp(controls.amplitude * averageAmplitude / 100.0);
+            }
+            else {
                 curr_prog.setAmp(controls.amplitude);
+                flat.setAmp(controls.amplitude);
+            }
         }
-        curr_prog.setModelMatrix(mat4.create());
+        curr_prog.setModelMatrix(mat4.fromScaling(mat4.create(), vec3.fromValues(1, 1, 1)));
         curr_prog.setFreq(controls.frequency);
         curr_prog.setImpulse(controls.parabola);
         curr_prog.setFreqFbm(controls.frequency_fbm);
         curr_prog.setPause(controls.pause ? 1 : 0);
         curr_prog.setVis(controls.visualize ? 1 : 0);
+        flat.setCamPos(camera.controls.eye);
+        flat.setTime(timestamp * 0.001);
+        flat.setDimensions(vec2.fromValues(window.innerWidth, window.innerHeight));
+        flat.setGeometryColor(vec4.fromValues(palette.color[0] / 255, palette.color[1] / 255, palette.color[2] / 255, 1));
         gl.viewport(0, 0, window.innerWidth, window.innerHeight);
         renderer.clear();
         if (controls.tesselations != prevTesselations) {
@@ -156,15 +173,23 @@ function main() {
             cube = new Cube(vec3.fromValues(0, 0, 0));
             cube.create();
         }
-        renderer.render(camera, curr_prog, [
-            icosphere,
-        ]);
         // set the model matrix to an scaled matrix with scale factor 4
         lambert.setModelMatrix(mat4.fromScaling(mat4.create(), vec3.fromValues(500, 500, 500)));
         lambert.setGeometryColor(vec4.fromValues(palette.color[0] / 255, palette.color[1] / 255, palette.color[2] / 255, 1));
+        lambert.setTime(timestamp * 0.001);
         renderer.render(camera, lambert, [
             cube
         ]);
+        gl.depthMask(false);
+        renderer.render(camera, flat, [
+            square,
+        ]);
+        gl.depthMask(true);
+        renderer.render(camera, curr_prog, [
+            icosphere,
+        ]);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
         stats.end();
 
         // Tell the browser to call `tick` again whenever it renders a new frame
