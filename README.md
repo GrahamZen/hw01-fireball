@@ -5,7 +5,7 @@
 1. The scene is rendered with three shaders: flat shader(halo), lambert shader(skybox), and noise shader(fireball).
 2. Apply FBM noise to both the vertex and fragment shaders to create a fireball-like effect and ambience.
 3. Use four toolbox functions: bias, impulse, parabola, triangle_wave.
-4. Add a halo to the fireball.
+4. Add a halo to the fireball(based on [Main Sequence Star](https://www.shadertoy.com/view/4dXGR4)).
 5. Use the sum of the frequency data of the music as amplitude.
 6. Allow users to set amplitude, frequency of the fbm, and length of parabola's peak.
 
